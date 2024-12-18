@@ -1,5 +1,7 @@
 Calculation webservice
 
+>It can calculate mathematical expressions with *, /, +, -, () operations
+
 On default, it is run on localhost:8080 (It can be changed manually if needed)
 
 # Table of Contents

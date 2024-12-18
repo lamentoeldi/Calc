@@ -1,13 +1,13 @@
 package calc
 
 import (
-	"errors"
 	"strconv"
 	"unicode"
 )
 
 func Calc(expression string) (float64, error) {
 	// Recursive descent, why not?
+
 	tokens, err := func() ([]string, error) {
 		var tokens []string
 		var currentToken string
@@ -26,7 +26,7 @@ func Calc(expression string) (float64, error) {
 				if r == '+' || r == '-' || r == '*' || r == '/' || r == '(' || r == ')' {
 					tokens = append(tokens, string(r))
 				} else {
-					return nil, errors.New("invalid expression")
+					return nil, ErrInvalidExpression
 				}
 			}
 		}
@@ -95,7 +95,7 @@ func Calc(expression string) (float64, error) {
 						leftTerm *= rightTerm
 					} else {
 						if rightTerm == 0 {
-							return 0, errors.New("division by zero")
+							return 0, ErrDivisionByZero
 						}
 						leftTerm /= rightTerm
 					}
@@ -108,7 +108,7 @@ func Calc(expression string) (float64, error) {
 
 		parseFactor = func() (float64, error) {
 			if currentTokenIndex >= len(tokens) {
-				return 0, errors.New("out of tokens")
+				return 0, ErrOutOfTokens
 			}
 			if tokens[currentTokenIndex] == "-" {
 				currentTokenIndex++
@@ -129,7 +129,7 @@ func Calc(expression string) (float64, error) {
 				}
 
 				if currentTokenIndex >= len(tokens) || tokens[currentTokenIndex] != ")" {
-					return 0, errors.New("invalid parentheses")
+					return 0, ErrInvalidParentheses
 				}
 				currentTokenIndex++
 				return value, nil

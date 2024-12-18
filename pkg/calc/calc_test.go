@@ -35,6 +35,12 @@ func TestCalc(t *testing.T) {
 			expected:  0,
 			wantError: true,
 		},
+		{
+			name:      "division by zero",
+			exp:       "100 / 0",
+			expected:  0,
+			wantError: true,
+		},
 	}
 
 	for _, tc := range cases {
