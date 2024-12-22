@@ -4,11 +4,14 @@ import (
 	"Calc/pkg/calc"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
 func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	// Lasciate ogne speranza, voi ch’entrate
+
+	// We won't let the memory leak occur
 	defer r.Body.Close()
 
 	var requestBody struct {
@@ -22,6 +25,8 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		err := recover()
 		if err != nil {
+			log.Printf("[ERROR]: %v", err)
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			if err := json.NewEncoder(w).Encode(errorBody{
@@ -46,17 +51,31 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 
 	// We don't want it to process requests without body, do we?
 	if r.Body == nil {
-		panic("empty request body")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(errorBody{
+			Error: "Bad request",
+		}); err != nil {
+			panic(err)
+		}
 		return
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		panic(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(errorBody{
+			Error: "Bad request",
+		}); err != nil {
+			panic(err)
+		}
 		return
 	}
 
 	// Here we make the Calc function to process the expression
 	res, err := calc.Calc(requestBody.Expression)
 	if err != nil {
+		log.Printf("[ERROR]: %v", err)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		if err := json.NewEncoder(w).Encode(errorBody{
@@ -74,6 +93,6 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		Result: fmt.Sprintf("%.2f", res),
 	}); err != nil {
-		panic("error encoding response")
+		panic(err)
 	}
 }

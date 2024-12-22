@@ -27,9 +27,9 @@ func TestCalcHandler(t *testing.T) {
 			method:         http.MethodPost,
 		},
 		{
-			name:           "Internal server error",
+			name:           "Bad Request",
 			reqBody:        nil,
-			expectedStatus: http.StatusInternalServerError,
+			expectedStatus: http.StatusBadRequest,
 			method:         http.MethodPost,
 		},
 		{
